@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.otp_page_flutter"
+        applicationId "com.jothishankar.image_u_v"
         minSdkVersion 21
         targetSdkVersion 35
         versionCode 1
