@@ -7,7 +7,7 @@
     android:maxSdkVersion="32"/> For Android 12 and below -->
 
     <application
-        android:label="otp_page_flutter"
+        android:label="Image U_V"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
