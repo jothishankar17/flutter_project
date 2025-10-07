@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "652192643451",
+    "project_id": "image-u-v",
+    "storage_bucket": "image-u-v.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:652192643451:android:67632b36bed7029d47e5de",
+        "android_client_info": {
+          "package_name": "com.jothishankar.image_u_v"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQ4k3xs2NA3aRv3l2VfsOPnfDLgU2TW6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
