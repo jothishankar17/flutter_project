@@ -2,6 +2,8 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    // ✅ Add this plugin for Firebase
+    id "com.google.gms.google-services"
 }
 
 def keystoreProperties = new Properties()
@@ -54,3 +56,10 @@ flutter {
     source '../..'
 }
 
+dependencies {
+    // ✅ Import Firebase Bill of Materials (BoM)
+    implementation platform('com.google.firebase:firebase-bom:33.1.2')
+
+    // ✅ Add Firebase SDKs you plan to use
+    implementation 'com.google.firebase:firebase-auth'       // for phone authentication
+}
