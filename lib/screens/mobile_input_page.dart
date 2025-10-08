@@ -15,10 +15,28 @@ class _MobileInputPageState extends State<MobileInputPage> {
   final TextEditingController _mobileController = TextEditingController();
   int _currentIndex = 0;
 
-  void _generateOTP() {
-    final mobileNumber = _mobileController.text.trim();
+  // void _generateOTP() {
+  //   final mobileNumber = _mobileController.text.trim();
 
-    if (mobileNumber.length != 10) {
+  //   if (mobileNumber.length != 10) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Enter a valid 10-digit mobile number')),
+  //     );
+  //     return;
+  //   }
+
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => OTPVerificationPage(mobileNumber: mobileNumber),
+  //     ),
+  //   );
+  // }
+
+  void _generateOTP() {
+    final phoneNumber = '+91${_mobileController.text.trim()}'; // ✅ Add +91 here
+
+    if (_mobileController.text.trim().length != 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Enter a valid 10-digit mobile number')),
       );
@@ -28,7 +46,9 @@ class _MobileInputPageState extends State<MobileInputPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => OTPVerificationPage(mobileNumber: mobileNumber),
+        builder: (context) => OTPVerificationPage(
+          mobileNumber: phoneNumber,
+        ), // ✅ pass full phone number
       ),
     );
   }
@@ -111,7 +131,7 @@ class _MobileInputPageState extends State<MobileInputPage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar( 
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         fixedColor: Colors.blue,
         onTap: _onBottomNavTap,
