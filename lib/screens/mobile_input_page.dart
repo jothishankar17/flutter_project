@@ -127,8 +127,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'otp_verification_page.dart';
 import 'home_page.dart';
 import 'about_page.dart';
@@ -147,18 +145,7 @@ class _MobileInputPageState extends State<MobileInputPage> {
   int _currentIndex = 0;
   bool _isLoading = false;
 
-  /// ✅ Function to initialize Firebase (safe to call multiple times)
-  Future<void> _ensureFirebaseInitialized() async {
-    try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-    } catch (_) {
-      // Firebase already initialized
-    }
-  }
-
-  /// ✅ Function to send OTP via Firebase
+// ✅ Function to send OTP via Firebase
   Future<void> _generateOTP() async {
     final mobileNumber = _mobileController.text.trim();
 
@@ -171,9 +158,7 @@ class _MobileInputPageState extends State<MobileInputPage> {
 
     setState(() => _isLoading = true);
 
-    await _ensureFirebaseInitialized();
-
-    String phoneNumber = '+91$mobileNumber';
+    final phoneNumber = '+91$mobileNumber';
 
     await _auth.verifyPhoneNumber(
       phoneNumber: phoneNumber,
