@@ -40,8 +40,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'OTP Verification',
       debugShowCheckedModeBanner: false,
+      title: 'OTP Verification',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
         scaffoldBackgroundColor: Colors.white,
