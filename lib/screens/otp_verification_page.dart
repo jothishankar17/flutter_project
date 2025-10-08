@@ -197,32 +197,16 @@ class OTPVerificationPage extends StatefulWidget {
 class _OTPVerificationPageState extends State<OTPVerificationPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _otpController = TextEditingController();
-
-  String? _verificationId;
   bool _isVerifying = false;
   int _currentIndex = 0;
-  bool _isResending = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Use the verificationId passed from the previous screen (no auto re-send)
-    _verificationId = widget.verificationId;
-  }
-
-  /// Verify entered OTP using the verificationId
+  /// ✅ Verify the entered OTP
   Future<void> _verifyOTP() async {
-    final otp = _otpController.text.trim();
-    if (otp.isEmpty || otp.length < 6) {
+    final smsCode = _otpController.text.trim();
+
+    if (smsCode.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter the 6-digit OTP')),
-      );
-      return;
-    }
-
-    if (_verificationId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verification ID missing. Please resend OTP.')),
       );
       return;
     }
@@ -230,94 +214,44 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
     setState(() => _isVerifying = true);
 
     try {
+      // Create a PhoneAuthCredential with the code
       final credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId!,
-        smsCode: otp,
+        verificationId: widget.verificationId,
+        smsCode: smsCode,
       );
 
+      // Sign in the user with the credential
       await _auth.signInWithCredential(credential);
-      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('🎉 OTP Verified Successfully!')),
+        const SnackBar(content: Text('OTP Verified Successfully!')),
       );
 
+      // Navigate to next page
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const ImageUploadPage()),
       );
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid OTP: ${e.message ?? 'Try again'}')),
-      );
-    } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred. Please try again.')),
+        const SnackBar(content: Text('Invalid OTP. Please try again.')),
       );
     } finally {
-      if (mounted) setState(() => _isVerifying = false);
+      setState(() => _isVerifying = false);
     }
   }
 
-  /// Resend OTP (calls Firebase again and updates _verificationId)
-  Future<void> _resendOTP() async {
-    setState(() => _isResending = true);
-    final phoneNumber = '+91${widget.mobileNumber.trim()}';
-
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      timeout: const Duration(seconds: 60),
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        // Auto verification (Android) — sign in and navigate
-        await _auth.signInWithCredential(credential);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Phone number automatically verified!')),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const ImageUploadPage()),
-        );
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Verification failed: ${e.message}')),
-          );
-        }
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        if (mounted) {
-          setState(() {
-            _verificationId = verificationId;
-            _isResending = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('📩 OTP resent successfully')),
-          );
-        }
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        _verificationId = verificationId;
-      },
-    );
-  }
-
+  /// ✅ Navigate using bottom navigation
   void _onBottomNavTap(int index) {
     setState(() => _currentIndex = index);
-    if (index == 0) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => HomePage()));
-    } else if (index == 1) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => AboutPage()));
-    } else if (index == 2) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => HelpPage()));
-    }
-  }
 
-  @override
-  void dispose() {
-    _otpController.dispose();
-    super.dispose();
+    if (index == 0) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const HomePage()));
+    } else if (index == 1) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutPage()));
+    } else if (index == 2) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpPage()));
+    }
   }
 
   @override
@@ -331,7 +265,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
         backgroundColor: Colors.blue,
         centerTitle: true,
       ),
-      backgroundColor: Colors.green[50],
+      backgroundColor: Colors.blue[50],
       body: Center(
         child: Container(
           width: 320,
@@ -356,6 +290,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
               ),
               const SizedBox(height: 20),
 
+              // OTP input field
               PinCodeTextField(
                 appContext: context,
                 length: 6,
@@ -393,12 +328,12 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
 
               const SizedBox(height: 10),
 
-              _isResending
-                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator())
-                  : TextButton(
-                      onPressed: _resendOTP,
-                      child: const Text("Resend OTP"),
-                    ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Change Number"),
+              ),
             ],
           ),
         ),
@@ -416,3 +351,4 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
     );
   }
 }
+
