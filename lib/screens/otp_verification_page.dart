@@ -172,19 +172,23 @@
 //   }
 // }
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'about_page.dart';
 import 'help_page.dart';
 import 'package:otp_page_flutter/screens/image_upload_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class OTPVerificationPage extends StatefulWidget {
   final String mobileNumber;
+  final String verificationId;
 
-  const OTPVerificationPage({super.key, required this.mobileNumber});
+  const OTPVerificationPage({
+    super.key,
+    required this.mobileNumber,
+    required this.verificationId,
+  });
 
   @override
   State<OTPVerificationPage> createState() => _OTPVerificationPageState();
@@ -193,57 +197,33 @@ class OTPVerificationPage extends StatefulWidget {
 class _OTPVerificationPageState extends State<OTPVerificationPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _otpController = TextEditingController();
+
   String? _verificationId;
-  bool _otpSent = false;
   bool _isVerifying = false;
   int _currentIndex = 0;
+  bool _isResending = false;
 
   @override
   void initState() {
     super.initState();
-    _sendOTP();
+    // Use the verificationId passed from the previous screen (no auto re-send)
+    _verificationId = widget.verificationId;
   }
 
-  /// ✅ Send OTP to mobile number
-  Future<void> _sendOTP() async {
-    String phoneNumber = '+91${widget.mobileNumber.trim()}';
-    setState(() {
-      _otpSent = true;
-    });
-
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      timeout: const Duration(seconds: 60),
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        // Auto-verification (Android only)
-        await _auth.signInWithCredential(credential);
-        _navigateToNextPage();
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Verification failed: ${e.message}')),
-        );
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        setState(() {
-          _verificationId = verificationId;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('OTP sent successfully')));
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        _verificationId = verificationId;
-      },
-    );
-  }
-
-  /// ✅ Verify entered OTP
+  /// Verify entered OTP using the verificationId
   Future<void> _verifyOTP() async {
-    if (_verificationId == null || _otpController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter the OTP')));
+    final otp = _otpController.text.trim();
+    if (otp.isEmpty || otp.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter the 6-digit OTP')),
+      );
+      return;
+    }
+
+    if (_verificationId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verification ID missing. Please resend OTP.')),
+      );
       return;
     }
 
@@ -252,29 +232,77 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
     try {
       final credential = PhoneAuthProvider.credential(
         verificationId: _verificationId!,
-        smsCode: _otpController.text.trim(),
+        smsCode: otp,
       );
 
       await _auth.signInWithCredential(credential);
-      _navigateToNextPage();
-    } catch (e) {
-      ScaffoldMessenger.of(
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('🎉 OTP Verified Successfully!')),
+      );
+
+      Navigator.pushReplacement(
         context,
-      ).showSnackBar(SnackBar(content: Text('Invalid OTP. Please try again.')));
+        MaterialPageRoute(builder: (_) => const ImageUploadPage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid OTP: ${e.message ?? 'Try again'}')),
+      );
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred. Please try again.')),
+      );
     } finally {
-      setState(() => _isVerifying = false);
+      if (mounted) setState(() => _isVerifying = false);
     }
   }
 
-  /// ✅ Navigate to next page after success
-  void _navigateToNextPage() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const ImageUploadPage()),
+  /// Resend OTP (calls Firebase again and updates _verificationId)
+  Future<void> _resendOTP() async {
+    setState(() => _isResending = true);
+    final phoneNumber = '+91${widget.mobileNumber.trim()}';
+
+    await _auth.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      timeout: const Duration(seconds: 60),
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        // Auto verification (Android) — sign in and navigate
+        await _auth.signInWithCredential(credential);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Phone number automatically verified!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const ImageUploadPage()),
+        );
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Verification failed: ${e.message}')),
+          );
+        }
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        if (mounted) {
+          setState(() {
+            _verificationId = verificationId;
+            _isResending = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('📩 OTP resent successfully')),
+          );
+        }
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        _verificationId = verificationId;
+      },
     );
   }
 
-  /// ✅ Bottom nav navigation
   void _onBottomNavTap(int index) {
     setState(() => _currentIndex = index);
     if (index == 0) {
@@ -284,6 +312,12 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
     } else if (index == 2) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => HelpPage()));
     }
+  }
+
+  @override
+  void dispose() {
+    _otpController.dispose();
+    super.dispose();
   }
 
   @override
@@ -359,7 +393,12 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
 
               const SizedBox(height: 10),
 
-              TextButton(onPressed: _sendOTP, child: const Text("Resend OTP")),
+              _isResending
+                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator())
+                  : TextButton(
+                      onPressed: _resendOTP,
+                      child: const Text("Resend OTP"),
+                    ),
             ],
           ),
         ),
