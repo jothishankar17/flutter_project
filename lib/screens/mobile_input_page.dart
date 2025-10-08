@@ -126,11 +126,13 @@
 // }
 
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'otp_verification_page.dart';
 import 'home_page.dart';
 import 'about_page.dart';
 import 'help_page.dart';
+import '../firebase_options.dart';
 
 class MobileInputPage extends StatefulWidget {
   const MobileInputPage({super.key});
@@ -142,11 +144,22 @@ class MobileInputPage extends StatefulWidget {
 class _MobileInputPageState extends State<MobileInputPage> {
   final TextEditingController _mobileController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  int _currentIndex = 0;
   bool _isLoading = false;
+  int _currentIndex = 0;
 
-// ✅ Function to send OTP via Firebase
-  Future<void> _generateOTP() async {
+  // Initialize Firebase (only once)
+  Future<void> _ensureFirebaseInitialized() async {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } catch (e) {
+      // If already initialized, ignore
+    }
+  }
+
+  // ✅ Send OTP using Firebase
+  Future<void> _sendOTP() async {
     final mobileNumber = _mobileController.text.trim();
 
     if (mobileNumber.length != 10) {
@@ -158,12 +171,12 @@ class _MobileInputPageState extends State<MobileInputPage> {
 
     setState(() => _isLoading = true);
 
-    final phoneNumber = '+91$mobileNumber';
+    await _ensureFirebaseInitialized();
 
     await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
+      phoneNumber: '+91$mobileNumber', // Add +country code
       verificationCompleted: (PhoneAuthCredential credential) async {
-        // Auto verification (mostly on Android)
+        // Auto-verification for some Android devices
         await _auth.signInWithCredential(credential);
       },
       verificationFailed: (FirebaseAuthException e) {
@@ -184,7 +197,9 @@ class _MobileInputPageState extends State<MobileInputPage> {
           ),
         );
       },
-      codeAutoRetrievalTimeout: (String verificationId) {},
+      codeAutoRetrievalTimeout: (String verificationId) {
+        // Handle timeout if needed
+      },
       timeout: const Duration(seconds: 60),
     );
   }
@@ -195,20 +210,11 @@ class _MobileInputPageState extends State<MobileInputPage> {
     });
 
     if (index == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const HomePage()));
     } else if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AboutPage()),
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutPage()));
     } else if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const HelpPage()),
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpPage()));
     }
   }
 
@@ -231,11 +237,11 @@ class _MobileInputPageState extends State<MobileInputPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
                 color: Colors.black12,
                 blurRadius: 10,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -254,7 +260,6 @@ class _MobileInputPageState extends State<MobileInputPage> {
                 maxLength: 10,
                 decoration: const InputDecoration(
                   labelText: "Mobile Number",
-                  prefixText: "+91 ",
                   labelStyle: TextStyle(color: Colors.black),
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -267,13 +272,14 @@ class _MobileInputPageState extends State<MobileInputPage> {
               _isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: _generateOTP,
+                      onPressed: _sendOTP,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.blue),
                       ),
                       child: const Text(
                         "Generate OTP",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.blue),
                       ),
                     ),
             ],
