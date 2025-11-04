@@ -1,180 +1,6 @@
-// import 'dart:math';
-// import 'package:flutter/material.dart';
-// import 'package:pin_code_fields/pin_code_fields.dart';
-// import 'home_page.dart';
-// import 'about_page.dart';
-// import 'help_page.dart';
-// import 'package:otp_page_flutter/screens/image_upload_page.dart';
-
-// class OTPVerificationPage extends StatefulWidget {
-//   final String mobileNumber;
-
-//   const OTPVerificationPage({super.key, required this.mobileNumber});
-
-//   @override
-//   State<OTPVerificationPage> createState() => _OTPVerificationPageState();
-// }
-
-// class _OTPVerificationPageState extends State<OTPVerificationPage> {
-//   String _enteredOTP = "";
-//   late String _generatedOTP;
-//   bool _showOTP = true;
-//   int _currentIndex = 0;
-
-//   /// Generate OTP when the page loads
-//   @override
-//   void initState() {
-//     super.initState();
-//     _generatedOTP = _generateRandomOTP();
-//   }
-
-//   String _generateRandomOTP() {
-//     final random = Random();
-//     return (100000 + random.nextInt(900000)).toString();
-//   }
-
-//   void _verifyOTP() {
-//     if (_enteredOTP == _generatedOTP) {
-//       showDialog(
-//         context: context,
-//         builder: (_) => AlertDialog(
-//           title: Text("Success"),
-//           content: Text("OTP Verified Successfully!"),
-//           actions: [
-//             TextButton(
-//               onPressed: () {
-//                 Navigator.pop(context);
-//                 Navigator.pushReplacement(
-//                   context,
-//                   MaterialPageRoute(builder: (_) => ImageUploadPage()),
-//                 );
-//               },
-//               child: Text("OK", style: TextStyle(color: Colors.blue)),
-//             ),
-//           ],
-//         ),
-//       );
-//     } else {
-//       ScaffoldMessenger.of(
-//         context,
-//       ).showSnackBar(SnackBar(content: Text("Invalid OTP")));
-//     }
-//   }
-
-//   void _onBottomNavTap(int index) {
-//     setState(() {
-//       _currentIndex = index;
-//     });
-//     if (index == 0) {
-//       Navigator.push(context, MaterialPageRoute(builder: (_) => HomePage()));
-//     } else if (index == 1) {
-//       Navigator.push(context, MaterialPageRoute(builder: (_) => AboutPage()));
-//     } else if (index == 2) {
-//       Navigator.push(context, MaterialPageRoute(builder: (_) => HelpPage()));
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(
-//           "Verify OTP",
-//           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//         ),
-//         backgroundColor: Colors.blue,
-//         centerTitle: true,
-//       ),
-//       backgroundColor: Colors.green[50],
-//       body: Center(
-//         child: Container(
-//           width: 320,
-//           padding: const EdgeInsets.all(24),
-//           decoration: BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.circular(16),
-//             boxShadow: [
-//               BoxShadow(
-//                 color: Colors.black12,
-//                 blurRadius: 10,
-//                 offset: Offset(0, 4),
-//               ),
-//             ],
-//           ),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               Text(
-//                 "OTP sent to +91 ${widget.mobileNumber}",
-//                 style: TextStyle(fontSize: 16),
-//               ),
-
-//               SizedBox(height: 10),
-
-//               if (_showOTP)
-//                 Text(
-//                   "Your OTP is: $_generatedOTP",
-//                   style: const TextStyle(
-//                     fontSize: 16,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-
-//               SizedBox(height: 20),
-
-//               PinCodeTextField(
-//                 appContext: context,
-//                 length: 6,
-//                 autoFocus: true,
-//                 autoDismissKeyboard: false,
-//                 keyboardType: TextInputType.number,
-//                 animationType: AnimationType.fade,
-//                 cursorColor: Colors.black,
-//                 pinTheme: PinTheme(
-//                   shape: PinCodeFieldShape.box,
-//                   borderRadius: BorderRadius.circular(10),
-//                   fieldHeight: 50,
-//                   fieldWidth: 40,
-//                   activeColor: Colors.blue,
-//                   selectedColor: Colors.blue,
-//                   inactiveColor: Colors.grey,
-//                 ),
-//                 onChanged: (value) {
-//                   setState(() {
-//                     _enteredOTP = value;
-//                   });
-//                 },
-//               ),
-
-//               const SizedBox(height: 20),
-
-//               ElevatedButton(
-//                 onPressed: _verifyOTP,
-//                 child: Text("Verify OTP", style: TextStyle(color: Colors.blue)),
-//               ),
-
-//               const SizedBox(height: 10),
-//             ],
-//           ),
-//         ),
-//       ),
-//       bottomNavigationBar: BottomNavigationBar(
-//         currentIndex: _currentIndex,
-//         fixedColor: Colors.blue,
-//         onTap: _onBottomNavTap,
-//         items: [
-//           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-//           BottomNavigationBarItem(icon: Icon(Icons.info), label: "About"),
-//           BottomNavigationBarItem(icon: Icon(Icons.help), label: "Help"),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'about_page.dart';
 import 'help_page.dart';
@@ -182,75 +8,69 @@ import 'package:otp_page_flutter/screens/image_upload_page.dart';
 
 class OTPVerificationPage extends StatefulWidget {
   final String mobileNumber;
-  final String verificationId;
 
-  const OTPVerificationPage({
-    super.key,
-    required this.mobileNumber,
-    required this.verificationId,
-  });
+  const OTPVerificationPage({super.key, required this.mobileNumber});
 
   @override
   State<OTPVerificationPage> createState() => _OTPVerificationPageState();
 }
 
 class _OTPVerificationPageState extends State<OTPVerificationPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final TextEditingController _otpController = TextEditingController();
-  bool _isVerifying = false;
+  String _enteredOTP = "";
+  late String _generatedOTP;
+  bool _showOTP = true;
   int _currentIndex = 0;
 
-  /// ✅ Verify the entered OTP
-  Future<void> _verifyOTP() async {
-    final smsCode = _otpController.text.trim();
+  /// Generate OTP when the page loads
+  @override
+  void initState() {
+    super.initState();
+    _generatedOTP = _generateRandomOTP();
+  }
 
-    if (smsCode.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the 6-digit OTP')),
+  String _generateRandomOTP() {
+    final random = Random();
+    return (100000 + random.nextInt(900000)).toString();
+  }
+
+  void _verifyOTP() {
+    if (_enteredOTP == _generatedOTP) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text("Success"),
+          content: Text("OTP Verified Successfully!"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => ImageUploadPage()),
+                );
+              },
+              child: Text("OK", style: TextStyle(color: Colors.blue)),
+            ),
+          ],
+        ),
       );
-      return;
-    }
-
-    setState(() => _isVerifying = true);
-
-    try {
-      // Create a PhoneAuthCredential with the code
-      final credential = PhoneAuthProvider.credential(
-        verificationId: widget.verificationId,
-        smsCode: smsCode,
-      );
-
-      // Sign in the user with the credential
-      await _auth.signInWithCredential(credential);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('OTP Verified Successfully!')),
-      );
-
-      // Navigate to next page
-      Navigator.pushReplacement(
+    } else {
+      ScaffoldMessenger.of(
         context,
-        MaterialPageRoute(builder: (_) => const ImageUploadPage()),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid OTP. Please try again.')),
-      );
-    } finally {
-      setState(() => _isVerifying = false);
+      ).showSnackBar(SnackBar(content: Text("Invalid OTP")));
     }
   }
 
-  /// ✅ Navigate using bottom navigation
   void _onBottomNavTap(int index) {
-    setState(() => _currentIndex = index);
-
+    setState(() {
+      _currentIndex = index;
+    });
     if (index == 0) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const HomePage()));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => HomePage()));
     } else if (index == 1) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => AboutPage()));
     } else if (index == 2) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => HelpPage()));
     }
   }
 
@@ -258,14 +78,14 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Verify OTP",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.blue,
         centerTitle: true,
       ),
-      backgroundColor: Colors.blue[50],
+      backgroundColor: Colors.green[50],
       body: Center(
         child: Container(
           width: 320,
@@ -273,7 +93,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
                 color: Colors.black12,
                 blurRadius: 10,
@@ -286,16 +106,27 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
             children: [
               Text(
                 "OTP sent to +91 ${widget.mobileNumber}",
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16),
               ),
-              const SizedBox(height: 20),
 
-              // OTP input field
+              SizedBox(height: 10),
+
+              if (_showOTP)
+                Text(
+                  "Your OTP is: $_generatedOTP",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+              SizedBox(height: 20),
+
               PinCodeTextField(
                 appContext: context,
                 length: 6,
-                controller: _otpController,
                 autoFocus: true,
+                autoDismissKeyboard: false,
                 keyboardType: TextInputType.number,
                 animationType: AnimationType.fade,
                 cursorColor: Colors.black,
@@ -308,32 +139,21 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                   selectedColor: Colors.blue,
                   inactiveColor: Colors.grey,
                 ),
-                onChanged: (_) {},
+                onChanged: (value) {
+                  setState(() {
+                    _enteredOTP = value;
+                  });
+                },
               ),
 
               const SizedBox(height: 20),
 
-              _isVerifying
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _verifyOTP,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                      ),
-                      child: const Text(
-                        "Verify OTP",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+              ElevatedButton(
+                onPressed: _verifyOTP,
+                child: Text("Verify OTP", style: TextStyle(color: Colors.blue)),
+              ),
 
               const SizedBox(height: 10),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("Change Number"),
-              ),
             ],
           ),
         ),
@@ -342,7 +162,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
         currentIndex: _currentIndex,
         fixedColor: Colors.blue,
         onTap: _onBottomNavTap,
-        items: const [
+        items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.info), label: "About"),
           BottomNavigationBarItem(icon: Icon(Icons.help), label: "Help"),
@@ -351,4 +171,184 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
     );
   }
 }
+
+// import 'package:flutter/material.dart';
+// import 'package:pin_code_fields/pin_code_fields.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'home_page.dart';
+// import 'about_page.dart';
+// import 'help_page.dart';
+// import 'package:otp_page_flutter/screens/image_upload_page.dart';
+
+// class OTPVerificationPage extends StatefulWidget {
+//   final String mobileNumber;
+//   final String verificationId;
+
+//   const OTPVerificationPage({
+//     super.key,
+//     required this.mobileNumber,
+//     required this.verificationId,
+//   });
+
+//   @override
+//   State<OTPVerificationPage> createState() => _OTPVerificationPageState();
+// }
+
+// class _OTPVerificationPageState extends State<OTPVerificationPage> {
+//   final FirebaseAuth _auth = FirebaseAuth.instance;
+//   final TextEditingController _otpController = TextEditingController();
+//   bool _isVerifying = false;
+//   int _currentIndex = 0;
+
+//   /// ✅ Verify the entered OTP
+//   Future<void> _verifyOTP() async {
+//     final smsCode = _otpController.text.trim();
+
+//     if (smsCode.length != 6) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('Please enter the 6-digit OTP')),
+//       );
+//       return;
+//     }
+
+//     setState(() => _isVerifying = true);
+
+//     try {
+//       // Create a PhoneAuthCredential with the code
+//       final credential = PhoneAuthProvider.credential(
+//         verificationId: widget.verificationId,
+//         smsCode: smsCode,
+//       );
+
+//       // Sign in the user with the credential
+//       await _auth.signInWithCredential(credential);
+
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('OTP Verified Successfully!')),
+//       );
+
+//       // Navigate to next page
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(builder: (_) => const ImageUploadPage()),
+//       );
+//     } catch (e) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('Invalid OTP. Please try again.')),
+//       );
+//     } finally {
+//       setState(() => _isVerifying = false);
+//     }
+//   }
+
+//   /// ✅ Navigate using bottom navigation
+//   void _onBottomNavTap(int index) {
+//     setState(() => _currentIndex = index);
+
+//     if (index == 0) {
+//       Navigator.push(context, MaterialPageRoute(builder: (_) => const HomePage()));
+//     } else if (index == 1) {
+//       Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutPage()));
+//     } else if (index == 2) {
+//       Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpPage()));
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text(
+//           "Verify OTP",
+//           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+//         ),
+//         backgroundColor: Colors.blue,
+//         centerTitle: true,
+//       ),
+//       backgroundColor: Colors.blue[50],
+//       body: Center(
+//         child: Container(
+//           width: 320,
+//           padding: const EdgeInsets.all(24),
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.circular(16),
+//             boxShadow: const [
+//               BoxShadow(
+//                 color: Colors.black12,
+//                 blurRadius: 10,
+//                 offset: Offset(0, 4),
+//               ),
+//             ],
+//           ),
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               Text(
+//                 "OTP sent to +91 ${widget.mobileNumber}",
+//                 style: const TextStyle(fontSize: 16),
+//               ),
+//               const SizedBox(height: 20),
+
+//               // OTP input field
+//               PinCodeTextField(
+//                 appContext: context,
+//                 length: 6,
+//                 controller: _otpController,
+//                 autoFocus: true,
+//                 keyboardType: TextInputType.number,
+//                 animationType: AnimationType.fade,
+//                 cursorColor: Colors.black,
+//                 pinTheme: PinTheme(
+//                   shape: PinCodeFieldShape.box,
+//                   borderRadius: BorderRadius.circular(10),
+//                   fieldHeight: 50,
+//                   fieldWidth: 40,
+//                   activeColor: Colors.blue,
+//                   selectedColor: Colors.blue,
+//                   inactiveColor: Colors.grey,
+//                 ),
+//                 onChanged: (_) {},
+//               ),
+
+//               const SizedBox(height: 20),
+
+//               _isVerifying
+//                   ? const CircularProgressIndicator()
+//                   : ElevatedButton(
+//                       onPressed: _verifyOTP,
+//                       style: ElevatedButton.styleFrom(
+//                         backgroundColor: Colors.blue,
+//                       ),
+//                       child: const Text(
+//                         "Verify OTP",
+//                         style: TextStyle(color: Colors.white),
+//                       ),
+//                     ),
+
+//               const SizedBox(height: 10),
+
+//               TextButton(
+//                 onPressed: () {
+//                   Navigator.pop(context);
+//                 },
+//                 child: const Text("Change Number"),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//       bottomNavigationBar: BottomNavigationBar(
+//         currentIndex: _currentIndex,
+//         fixedColor: Colors.blue,
+//         onTap: _onBottomNavTap,
+//         items: const [
+//           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+//           BottomNavigationBarItem(icon: Icon(Icons.info), label: "About"),
+//           BottomNavigationBarItem(icon: Icon(Icons.help), label: "Help"),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
